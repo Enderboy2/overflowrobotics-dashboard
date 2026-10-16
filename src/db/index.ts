@@ -2,6 +2,7 @@ import "server-only";
 import { drizzle as drizzlePg, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+import { databaseUrl } from "./url";
 
 export type DB = PostgresJsDatabase<typeof schema>;
 
@@ -24,7 +25,7 @@ async function createLocal(): Promise<DB> {
 }
 
 function createRemote(): DB {
-  const client = postgres(process.env.DATABASE_URL!, { max: 5, prepare: false });
+  const client = postgres(databaseUrl(), { max: 5, prepare: false });
   return drizzlePg(client, { schema });
 }
 

@@ -7,15 +7,16 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import * as schema from "../src/db/schema";
 import { seed } from "../src/db/seed";
+import { databaseUrl } from "../src/db/url";
 import type { DB } from "../src/db/index";
 
 async function main() {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
   if (!url) {
     console.log("DATABASE_URL not set — skipping migrations (local dev uses embedded Postgres).");
     return;
   }
-  const client = postgres(url, { max: 1, prepare: false });
+  const client = postgres(databaseUrl(url), { max: 1, prepare: false });
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: "./drizzle" });
   await seed(db as unknown as DB, { demo: false });
